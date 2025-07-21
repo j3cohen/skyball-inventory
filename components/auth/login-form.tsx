@@ -47,7 +47,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         }
       }
     } catch (error) {
-      setError("An unexpected error occurred")
+      setError(`An unexpected error ${error} occurred`)
     } finally {
       setLoading(false)
     }
