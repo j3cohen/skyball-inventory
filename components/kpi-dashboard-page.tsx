@@ -27,7 +27,6 @@ interface GiftCostSummary {
 export function KpiDashboardPage() {
   const { computeOnHand, fetchLowStock, products } = useData()
   const [salesSummary, setSalesSummary] = useState<SalesOrderSummary[]>([])
-  const [giftCostData, setGiftCostData] = useState<GiftCostSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState({
@@ -54,12 +53,8 @@ export function KpiDashboardPage() {
         setKpiData(kpiResult?.[0] || null)
 
         // Fetch gift cost summary (this can remain as is if it's still a view)
-        const { data: giftResult, error: giftError } = await supabase.from("gift_cost_summary").select("*").single()
-
-        if (!giftError && giftResult) {
-          setGiftCostData(giftResult)
-        }
-
+        // Fetch gift cost summary (this can remain as is if it's still a view)
+        await supabase.from("gift_cost_summary").select("*").single()
         // Fetch sales summary with date filters for additional calculations
         let salesQuery = supabase.from("sales_order_summary").select("*").order("date", { ascending: false })
 
