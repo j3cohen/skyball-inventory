@@ -35,6 +35,7 @@ interface InventoryData {
   on_hand: number
   avg_cost: number
   inventory_value: number
+  [key: string]: string | number
 }
 
 interface KitCapacityData {
@@ -43,6 +44,7 @@ interface KitCapacityData {
   possible_kits: number
   unit_cost: number
   kit_inventory_value: number
+  [key: string]: string | number
 }
 
 export function ProductsPage() {
@@ -245,7 +247,7 @@ export function ProductsPage() {
             value === "kit" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
           }`}
         >
-          {value}
+          {String(value)}
         </span>
       ),
     },
@@ -253,7 +255,7 @@ export function ProductsPage() {
       key: "computed_cost",
       label: "Unit Cost",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(2)}`,
+      render: (value) => `$${(typeof value === "number" ? value : 0).toFixed(2)}`,
     },
     {
       key: "reorder_level",
@@ -265,10 +267,20 @@ export function ProductsPage() {
       label: "Actions",
       render: (_, row) => (
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={() => handleEdit(row)}>
+          <Button variant="outline" size="sm" onClick={() => handleEdit(row as Product)}>
             <Edit className="w-4 h-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleDelete(row.id)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (typeof row.id === "number") {
+                handleDelete(row.id)
+              } else {
+                alert("Invalid product id")
+              }
+            }}
+          >
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
@@ -331,19 +343,19 @@ export function ProductsPage() {
                             key: "on_hand",
                             label: "On Hand",
                             sortable: true,
-                            render: (value) => <span className="font-medium">{value}</span>,
+                            render: (value) => <span className="font-medium">{String(value)}</span>,
                           },
                           {
                             key: "avg_cost",
                             label: "Avg Cost",
                             sortable: true,
-                            render: (value) => <span className="text-xs">${(value || 0).toFixed(4)}</span>,
+                            render: (value) => <span className="text-xs">${(typeof value === "number" ? value : 0).toFixed(4)}</span>,
                           },
                           {
                             key: "inventory_value",
                             label: "Value",
                             sortable: true,
-                            render: (value) => <span className="text-xs font-medium">${(value || 0).toFixed(2)}</span>,
+                            render: (value) => <span className="text-xs font-medium">${(typeof value === "number" ? value : 0).toFixed(2)}</span>,
                           },
                         ]}
                         data={baseInventory}
@@ -371,19 +383,19 @@ export function ProductsPage() {
                             key: "possible_kits",
                             label: "Possible",
                             sortable: true,
-                            render: (value) => <span className="font-medium">{value}</span>,
+                            render: (value) => <span className="font-medium">{String(value)}</span>,
                           },
                           {
                             key: "unit_cost",
                             label: "Unit Cost",
                             sortable: true,
-                            render: (value) => <span className="text-xs">${(value || 0).toFixed(4)}</span>,
+                            render: (value) => <span className="text-xs">${(typeof value === "number" ? value : 0).toFixed(4)}</span>,
                           },
                           {
                             key: "kit_inventory_value",
                             label: "Value",
                             sortable: true,
-                            render: (value) => <span className="text-xs font-medium">${(value || 0).toFixed(2)}</span>,
+                            render: (value) => <span className="text-xs font-medium">${(typeof value === "number" ? value : 0).toFixed(2)}</span>,
                           },
                         ]}
                         data={kitCapacity}

@@ -77,9 +77,9 @@ export function InventoryLedgerPage() {
       label: "Change Qty",
       sortable: true,
       render: (value) => (
-        <span className={`font-medium ${value > 0 ? "text-green-600" : "text-red-600"}`}>
-          {value > 0 ? "+" : ""}
-          {value}
+        <span className={`font-medium ${(Number(value) > 0 ? "text-green-600" : "text-red-600")}`}>
+          {Number(value) > 0 ? "+" : ""}
+          {String(value)}
         </span>
       ),
     },
@@ -110,7 +110,7 @@ export function InventoryLedgerPage() {
                     : "bg-gray-100 text-gray-800"
           }`}
         >
-          {value.replace("_", " ")}
+          {(value as string).replace("_", " ")}
         </span>
       ),
     },
@@ -118,7 +118,7 @@ export function InventoryLedgerPage() {
       key: "unit_cost",
       label: "Unit Cost",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(4)}`,
+      render: (value) => `$${(typeof value === "number" ? value : Number(value) || 0).toFixed(4)}`,
     },
     {
       key: "reference_id",

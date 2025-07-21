@@ -41,7 +41,7 @@ export function LowStockPage() {
       key: "on_hand",
       label: "On Hand",
       sortable: true,
-      render: (value) => <span className="text-red-600 font-medium">{value}</span>,
+      render: (value) => <span className="text-red-600 font-medium">{String(value)}</span>,
     },
     {
       key: "reorder_level",
@@ -52,27 +52,38 @@ export function LowStockPage() {
       key: "shortage",
       label: "Shortage",
       sortable: true,
-      render: (_, row) => <span className="text-red-600 font-medium">{row.reorder_level - row.on_hand}</span>,
+      render: (_, row) => {
+        const r = row as { reorder_level: number; on_hand: number }
+        return <span className="text-red-600 font-medium">{r.reorder_level - r.on_hand}</span>
+      },
     },
     {
       key: "avg_cost",
       label: "Avg Cost",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(4)}`,
+      render: (value) => `$${Number(value || 0).toFixed(4)}`,
     },
     {
       key: "actions",
       label: "Actions",
-      render: (_, row) => (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => sendReminder(row.product_id, row.name, row.on_hand, row.reorder_level)}
-        >
-          <Bell className="w-4 h-4 mr-2" />
-          Send Reminder
-        </Button>
-      ),
+      render: (_, row) => {
+        const r = row as {
+          product_id: number
+          name: string
+          on_hand: number
+          reorder_level: number
+        }
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => sendReminder(r.product_id, r.name, r.on_hand, r.reorder_level)}
+          >
+            <Bell className="w-4 h-4 mr-2" />
+            Send Reminder
+          </Button>
+        )
+      },
     },
   ]
 

@@ -43,7 +43,7 @@ export function SalesOrdersPage() {
         is_gift: formData.is_gift,
         total_price: 0, // Will be calculated by RPC
         total_cogs: 0, // Will be calculated by RPC
-      })
+      }) as { id: number }
 
       // Create sales order lines
       for (const line of formData.lines) {
@@ -145,26 +145,29 @@ export function SalesOrdersPage() {
       key: "shipping_cost",
       label: "Shipping Cost",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(2)}`,
+      render: (value) => `$${(Number(value) || 0).toFixed(2)}`,
     },
     {
       key: "total_price",
       label: "Total Price",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(2)}`,
+      render: (value) => `$${Number(value || 0).toFixed(2)}`,
     },
     {
       key: "total_cogs",
       label: "Total COGS",
       sortable: true,
-      render: (value) => <span className="text-red-600">${(value || 0).toFixed(2)}</span>,
+      render: (value) => <span className="text-red-600">${Number(value || 0).toFixed(2)}</span>,
     },
     {
       key: "gross_profit",
       label: "Gross Profit",
       sortable: true,
-      render: (_, row) => {
-        const grossProfit = row.total_price - row.total_cogs - row.shipping_cost
+      render: (_: unknown, row) => {
+        const total_price = (row as any)?.total_price ?? 0
+        const total_cogs = (row as any)?.total_cogs ?? 0
+        const shipping_cost = (row as any)?.shipping_cost ?? 0
+        const grossProfit = total_price - total_cogs - shipping_cost
         return <span className={grossProfit >= 0 ? "text-green-600" : "text-red-600"}>${grossProfit.toFixed(2)}</span>
       },
     },
@@ -172,7 +175,7 @@ export function SalesOrdersPage() {
       key: "comments",
       label: "Comments",
       filterable: true,
-      render: (value) => value || "-",
+      render: (value, _row) => <>{value || "-"}</>,
     },
   ]
 
