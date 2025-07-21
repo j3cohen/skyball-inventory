@@ -180,7 +180,7 @@ export function DataTable({ columns, data, searchPlaceholder = "Search...", clas
               <TableRow key={row?.id || index}>
                 {columns.map((column) => (
                   <TableCell key={column.key}>
-                    {column.render ? column.render(row?.[column.key], row) : (row?.[column.key] ?? "")}
+                    {column.render ? column.render(row?.[column.key], row) : String(row?.[column.key] ?? "")}
                   </TableCell>
                 ))}
               </TableRow>
