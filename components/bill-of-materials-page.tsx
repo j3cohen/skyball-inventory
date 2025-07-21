@@ -149,23 +149,23 @@ export function BillOfMaterialsPage() {
       key: "component_cost",
       label: "Unit Cost",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(4)}`,
+      render: (value) => `$${(typeof value === "number" ? value : Number(value) || 0).toFixed(4)}`,
     },
     {
       key: "line_cost",
       label: "Line Cost",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(4)}`,
+      render: (value) => `$${(typeof value === "number" ? value : Number(value) || 0).toFixed(4)}`,
     },
     {
       key: "actions",
       label: "Actions",
       render: (_, row) => (
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={() => handleEdit(row)}>
+          <Button variant="outline" size="sm" onClick={() => handleEdit(row as unknown as BomTableRow)}>
             <Edit className="w-4 h-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleDelete(row.id)}>
+          <Button variant="outline" size="sm" onClick={() => handleDelete(Number(row.id))}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
