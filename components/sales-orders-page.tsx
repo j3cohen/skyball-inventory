@@ -91,7 +91,7 @@ export function SalesOrdersPage() {
     })
   }
 
-  const updateLine = (index: number, field: string, value: any) => {
+  const updateLine = (index: number, field: string, value: string | number) => {
     const newLines = [...formData.lines]
     newLines[index] = { ...newLines[index], [field]: value }
     setFormData({ ...formData, lines: newLines })
