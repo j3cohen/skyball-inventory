@@ -18,12 +18,6 @@ interface KpiSummary {
   net_margin_including_gifts: number
 }
 
-interface GiftCostSummary {
-  total_gift_cogs: number
-  total_gift_shipping: number
-  total_gift_costs: number
-}
-
 export function KpiDashboardPage() {
   const { computeOnHand, fetchLowStock, products } = useData()
   const [salesSummary, setSalesSummary] = useState<SalesOrderSummary[]>([])
