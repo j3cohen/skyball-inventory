@@ -475,14 +475,4 @@ export function useData() {
 
 export type { SalesOrderSummary }
 
-export type Product = {
-  id: number
-  sku: string
-  name: string
-  type: "base" | "kit"
-  avg_cost: number
-  computed_cost: number
-  reorder_level: number
-  created_at: string
-  updated_at: string
-}
+

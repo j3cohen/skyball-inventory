@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import type { Product } from "@/components/data-context"
+import type { Product } from "@/lib/supabase"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
