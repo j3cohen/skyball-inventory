@@ -13,13 +13,31 @@ import { Plus, Edit, Trash2, Loader2 } from "lucide-react"
 import { DataTable, type Column } from "@/components/ui/data-table"
 import { useData } from "@/components/data-context"
 
+interface BomFormData {
+  component_product_id: number
+  quantity: number
+  unit_of_measure: string
+}
+
+interface BomTableRow {
+  id: number
+  kit_product_id: number
+  component_product_id: number
+  quantity: number
+  unit_of_measure: string
+  component_sku: string
+  component_name: string
+  component_cost: number
+  line_cost: number
+}
+
 export function BillOfMaterialsPage() {
   const { products, billOfMaterials, loading, error, insertRow, updateRow, deleteRow } = useData()
   const [selectedKitId, setSelectedKitId] = useState<number | null>(null)
-  const [editingBom, setEditingBom] = useState<any>(null)
+  const [editingBom, setEditingBom] = useState<BomTableRow | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BomFormData>({
     component_product_id: 0,
     quantity: 0,
     unit_of_measure: "each",
@@ -62,7 +80,7 @@ export function BillOfMaterialsPage() {
     }
   }
 
-  const handleEdit = (bom: any) => {
+  const handleEdit = (bom: BomTableRow) => {
     setEditingBom(bom)
     setFormData({
       component_product_id: bom.component_product_id,

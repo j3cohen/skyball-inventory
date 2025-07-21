@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import type { Product } from "@/components/data-context"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,10 +14,41 @@ import { DataTable, type Column } from "@/components/ui/data-table"
 import { useData } from "@/components/data-context"
 import { supabase } from "@/lib/supabase"
 
+// interface ProductFormData {
+//   sku: string
+//   name: string
+//   type: string
+//   avg_cost: string
+//   reorder_level: number
+// }
+
+interface BomLineData {
+  id?: number
+  component_product_id: number
+  quantity: number
+  unit_of_measure: string
+}
+
+interface InventoryData {
+  sku: string
+  name: string
+  on_hand: number
+  avg_cost: number
+  inventory_value: number
+}
+
+interface KitCapacityData {
+  kit_sku: string
+  kit_name: string
+  possible_kits: number
+  unit_cost: number
+  kit_inventory_value: number
+}
+
 export function ProductsPage() {
   const { products, billOfMaterials, loading, error, insertRow, updateRow, deleteRow } = useData()
 
-  const [editingProduct, setEditingProduct] = useState<any>(null)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -27,12 +58,12 @@ export function ProductsPage() {
     avg_cost: "0.00",
     reorder_level: 0,
   })
-  const [bomLines, setBomLines] = useState<any[]>([])
+  const [bomLines, setBomLines] = useState<BomLineData[]>([])
 
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false)
   const [inventoryLoading, setInventoryLoading] = useState(false)
-  const [baseInventory, setBaseInventory] = useState<any[]>([])
-  const [kitCapacity, setKitCapacity] = useState<any[]>([])
+  const [baseInventory, setBaseInventory] = useState<InventoryData[]>([])
+  const [kitCapacity, setKitCapacity] = useState<KitCapacityData[]>([])
 
   const baseProducts = products.filter((p) => p.type === "base")
 
@@ -78,7 +109,7 @@ export function ProductsPage() {
           avg_cost: formData.type === "base" ? Number.parseFloat(formData.avg_cost) || 0 : 0,
           reorder_level: Number.parseInt(formData.reorder_level.toString()) || 0,
         })
-        productId = updatedProduct.id
+        productId = (updatedProduct as Product).id
 
         // Delete existing BOM lines for this kit
         if (formData.type === "kit") {
@@ -96,7 +127,7 @@ export function ProductsPage() {
           avg_cost: formData.type === "base" ? Number.parseFloat(formData.avg_cost) || 0 : 0,
           reorder_level: Number.parseInt(formData.reorder_level.toString()) || 0,
         })
-        productId = newProduct.id
+        productId = (newProduct as Product).id
       }
 
       // Create BOM lines if it's a kit
@@ -277,7 +308,7 @@ export function ProductsPage() {
                 Inventory Data
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-[95vw] w-full max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Inventory Data</DialogTitle>
               </DialogHeader>
@@ -291,29 +322,37 @@ export function ProductsPage() {
                   {/* Base Inventory Section */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Base Inventory</h3>
-                    <DataTable
-                      columns={[
-                        { key: "sku", label: "SKU", sortable: true, filterable: true },
-                        { key: "name", label: "Name", sortable: true, filterable: true },
-                        { key: "on_hand", label: "On Hand", sortable: true },
-                        {
-                          key: "avg_cost",
-                          label: "Avg Cost",
-                          sortable: true,
-                          render: (value) => `$${(value || 0).toFixed(4)}`,
-                        },
-                        {
-                          key: "inventory_value",
-                          label: "Inventory Value",
-                          sortable: true,
-                          render: (value) => `$${(value || 0).toFixed(2)}`,
-                        },
-                      ]}
-                      data={baseInventory}
-                      searchPlaceholder="Search base inventory by SKU or name..."
-                    />
-                    <div className="mt-2 text-right">
-                      <strong>
+                    <div className="overflow-x-auto">
+                      <DataTable
+                        columns={[
+                          { key: "sku", label: "SKU", sortable: true, filterable: true },
+                          { key: "name", label: "Name", sortable: true, filterable: true },
+                          {
+                            key: "on_hand",
+                            label: "On Hand",
+                            sortable: true,
+                            render: (value) => <span className="font-medium">{value}</span>,
+                          },
+                          {
+                            key: "avg_cost",
+                            label: "Avg Cost",
+                            sortable: true,
+                            render: (value) => <span className="text-xs">${(value || 0).toFixed(4)}</span>,
+                          },
+                          {
+                            key: "inventory_value",
+                            label: "Value",
+                            sortable: true,
+                            render: (value) => <span className="text-xs font-medium">${(value || 0).toFixed(2)}</span>,
+                          },
+                        ]}
+                        data={baseInventory}
+                        searchPlaceholder="Search base inventory..."
+                        className="min-w-full"
+                      />
+                    </div>
+                    <div className="mt-2 text-right bg-gray-50 p-2 rounded">
+                      <strong className="text-sm">
                         Total Base Inventory Value: $
                         {baseInventory.reduce((sum, item) => sum + (item.inventory_value || 0), 0).toFixed(2)}
                       </strong>
@@ -323,29 +362,37 @@ export function ProductsPage() {
                   {/* Kit Capacity Section */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Kit Capacity</h3>
-                    <DataTable
-                      columns={[
-                        { key: "kit_sku", label: "Kit SKU", sortable: true, filterable: true },
-                        { key: "kit_name", label: "Kit Name", sortable: true, filterable: true },
-                        { key: "possible_kits", label: "Possible Kits", sortable: true },
-                        {
-                          key: "unit_cost",
-                          label: "Unit Cost",
-                          sortable: true,
-                          render: (value) => `$${(value || 0).toFixed(4)}`,
-                        },
-                        {
-                          key: "kit_inventory_value",
-                          label: "Kit Inventory Value",
-                          sortable: true,
-                          render: (value) => `$${(value || 0).toFixed(2)}`,
-                        },
-                      ]}
-                      data={kitCapacity}
-                      searchPlaceholder="Search kit capacity by SKU or name..."
-                    />
-                    <div className="mt-2 text-right">
-                      <strong>
+                    <div className="overflow-x-auto">
+                      <DataTable
+                        columns={[
+                          { key: "kit_sku", label: "Kit SKU", sortable: true, filterable: true },
+                          { key: "kit_name", label: "Kit Name", sortable: true, filterable: true },
+                          {
+                            key: "possible_kits",
+                            label: "Possible",
+                            sortable: true,
+                            render: (value) => <span className="font-medium">{value}</span>,
+                          },
+                          {
+                            key: "unit_cost",
+                            label: "Unit Cost",
+                            sortable: true,
+                            render: (value) => <span className="text-xs">${(value || 0).toFixed(4)}</span>,
+                          },
+                          {
+                            key: "kit_inventory_value",
+                            label: "Value",
+                            sortable: true,
+                            render: (value) => <span className="text-xs font-medium">${(value || 0).toFixed(2)}</span>,
+                          },
+                        ]}
+                        data={kitCapacity}
+                        searchPlaceholder="Search kit capacity..."
+                        className="min-w-full"
+                      />
+                    </div>
+                    <div className="mt-2 text-right bg-gray-50 p-2 rounded">
+                      <strong className="text-sm">
                         Total Kit Inventory Value: $
                         {kitCapacity.reduce((sum, item) => sum + (item.kit_inventory_value || 0), 0).toFixed(2)}
                       </strong>

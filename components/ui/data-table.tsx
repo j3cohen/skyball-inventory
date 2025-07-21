@@ -9,6 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronUp, ChevronDown, Search } from "lucide-react"
 
+interface Row {
+  [key: string]: unknown
+  id?: string | number
+}
+
 export interface Column {
   key: string
   label: string
@@ -16,12 +21,12 @@ export interface Column {
   filterable?: boolean
   filterType?: "text" | "select"
   filterOptions?: { value: string; label: string }[]
-  render?: (value: any, row: any) => React.ReactNode
+  render?: (value: unknown, row: Row) => React.ReactNode
 }
 
 interface DataTableProps {
   columns: Column[]
-  data: any[]
+  data: Row[]
   searchPlaceholder?: string
   className?: string
 }

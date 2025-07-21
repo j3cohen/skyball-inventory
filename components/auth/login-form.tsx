@@ -32,21 +32,21 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
     try {
       if (isLogin) {
-        const { data, error } = await signIn(email, password)
+        const { error } = await signIn(email, password)
         if (error) {
           setError(error.message)
-        } else if (data.user) {
+        } else {
           onSuccess()
         }
       } else {
-        const { data, error } = await signUp(email, password)
+        const { error } = await signUp(email, password)
         if (error) {
           setError(error.message)
         } else {
           setMessage("Check your email for the confirmation link!")
         }
       }
-    } catch (err) {
+    } catch (error) {
       setError("An unexpected error occurred")
     } finally {
       setLoading(false)

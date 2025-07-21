@@ -27,6 +27,7 @@ type CustomSalesOrder = {
   updated_at: string
 }
 
+// Add this type after CustomSalesOrder
 type SalesOrderSummary = {
   id: number
   customer: string
@@ -39,6 +40,14 @@ type SalesOrderSummary = {
   units_sold: number
   comments: string | null
   is_gift: boolean
+}
+
+interface InsertData {
+  [key: string]: unknown
+}
+
+interface UpdateData {
+  [key: string]: unknown
 }
 
 type DataContextType = {
@@ -463,4 +472,17 @@ export function useData() {
   }
   return context
 }
+
 export type { SalesOrderSummary }
+
+export type Product = {
+  id: number
+  sku: string
+  name: string
+  type: "base" | "kit"
+  avg_cost: number
+  computed_cost: number
+  reorder_level: number
+  created_at: string
+  updated_at: string
+}
