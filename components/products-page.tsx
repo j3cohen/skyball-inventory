@@ -155,7 +155,7 @@ export function ProductsPage() {
     }
   }
 
-  const handleEdit = (product: any) => {
+  const handleEdit = (product: Product) => {
     setEditingProduct(product)
     setFormData({
       sku: product.sku,
@@ -209,7 +209,7 @@ export function ProductsPage() {
     setBomLines(bomLines.filter((_, i) => i !== index))
   }
 
-  const updateBomLine = (index: number, field: string, value: any) => {
+  const updateBomLine = (index: number, field: string, value: string | number) => {
     const newLines = [...bomLines]
     newLines[index] = { ...newLines[index], [field]: value }
     setBomLines(newLines)
