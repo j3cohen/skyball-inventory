@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -23,7 +22,7 @@ interface SalesOrderSummary {
   gross_margin_pct: number
   units_sold: number
   comments: string | null
-  is_gift: boolean // Add this field
+  is_gift: boolean
 }
 
 export function SalesAnalysisPage() {
@@ -31,7 +30,6 @@ export function SalesAnalysisPage() {
   const [salesSummary, setSalesSummary] = useState<SalesOrderSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showGifts, setShowGifts] = useState(false)
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
@@ -73,20 +71,19 @@ export function SalesAnalysisPage() {
   const filteredSalesAnalysis = useMemo(() => {
     if (!salesSummary || salesSummary.length === 0) return []
 
-    let filtered = salesSummary.filter((sale) => {
+    const filtered = salesSummary.filter((sale) => {
       if (!sale) return false
       if (filters.customer && !sale.customer?.toLowerCase().includes(filters.customer.toLowerCase())) return false
       // Note: Product SKU filtering would require joining with sales order lines - simplified for now
       return true
     })
 
-    // Apply gift filter
-    if (showGifts) {
-      filtered = filtered.filter((sale) => sale.is_gift === true)
-    }
-
-    return filtered
-  }, [salesSummary, filters.customer, showGifts])
+    // Convert boolean is_gift to string for DataTable filtering
+    return filtered.map((sale) => ({
+      ...sale,
+      is_gift_display: sale.is_gift ? "Yes" : "No",
+    }))
+  }, [salesSummary, filters.customer])
 
   const clearFilters = () => {
     setFilters({
@@ -95,10 +92,9 @@ export function SalesAnalysisPage() {
       customer: "",
       productSku: "all",
     })
-    setShowGifts(false)
   }
 
-  // Calculate totals
+  // Calculate totals - this will be calculated from whatever data is currently visible in the table
   const totals = useMemo(() => {
     if (!filteredSalesAnalysis || filteredSalesAnalysis.length === 0) {
       return { revenue: 0, cogs: 0, shippingCost: 0, grossProfit: 0 }
@@ -140,18 +136,18 @@ export function SalesAnalysisPage() {
       sortable: true,
     },
     {
-      key: "is_gift",
+      key: "is_gift_display",
       label: "Gift?",
       sortable: true,
       filterable: true,
       filterType: "select",
       filterOptions: [
-        { value: "true", label: "Yes" },
-        { value: "false", label: "No" },
+        { value: "Yes", label: "Yes" },
+        { value: "No", label: "No" },
       ],
-      render: (value) => (
+      render: (value, row) => (
         <div className="flex items-center">
-          {value ? <Gift className="w-4 h-4 text-purple-600" /> : <span className="text-gray-400">-</span>}
+          {row.is_gift ? <Gift className="w-4 h-4 text-purple-600" /> : <span className="text-gray-400">-</span>}
         </div>
       ),
     },
@@ -223,14 +219,6 @@ export function SalesAnalysisPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Sales Analysis</h1>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="showGifts"
-            checked={showGifts}
-            onCheckedChange={(checked) => setShowGifts(checked === true)}
-          />
-          <Label htmlFor="showGifts">Show Gifts Only</Label>
-        </div>
       </div>
 
       <Card>
@@ -302,7 +290,7 @@ export function SalesAnalysisPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${totals.revenue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">{showGifts ? "Gift orders only" : "Excludes gifts"}</p>
+            <p className="text-xs text-muted-foreground">Based on current filters</p>
           </CardContent>
         </Card>
         <Card>
@@ -334,10 +322,7 @@ export function SalesAnalysisPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>
-            Sales Analysis ({filteredSalesAnalysis.length} orders)
-            {showGifts && <span className="text-purple-600 ml-2">- Gifts Only</span>}
-          </CardTitle>
+          <CardTitle>Sales Analysis ({filteredSalesAnalysis.length} orders)</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable

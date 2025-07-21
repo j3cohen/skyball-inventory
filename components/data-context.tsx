@@ -27,6 +27,20 @@ type CustomSalesOrder = {
   updated_at: string
 }
 
+type SalesOrderSummary = {
+  id: number
+  customer: string
+  date: string
+  total_revenue: number
+  total_cogs: number
+  shipping_expense: number
+  gross_profit: number
+  gross_margin_pct: number
+  units_sold: number
+  comments: string | null
+  is_gift: boolean
+}
+
 type DataContextType = {
   // Grouped data object (for backward compatibility)
   data: {
@@ -433,3 +447,4 @@ export function useData() {
   }
   return context
 }
+export type { SalesOrderSummary }
