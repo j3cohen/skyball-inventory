@@ -71,8 +71,8 @@ type DataContextType = {
   error: string | null
 
   // CRUD operations
-  insertRow: (table: string, data: any) => Promise<any>
-  updateRow: (table: string, id: number, data: any) => Promise<any>
+  insertRow: (table: string, data: InsertData) => Promise<unknown>
+  updateRow: (table: string, id: number, data: UpdateData) => Promise<unknown>
   deleteRow: (table: string, id: number) => Promise<void>
 
   // RPC functions
@@ -82,7 +82,15 @@ type DataContextType = {
   // Computed functions
   computeOnHand: () => InventoryOnHand[]
   fetchLowStock: () => LowStockAlert[]
-  setData: (newData: any) => void
+  setData: (newData: {
+    products?: Product[]
+    bill_of_materials?: BillOfMaterial[]
+    purchase_orders?: PurchaseOrder[]
+    purchase_order_lines?: PurchaseOrderLine[]
+    sales_orders?: CustomSalesOrder[]
+    sales_order_lines?: SalesOrderLine[]
+    inventory_transactions?: InventoryTransaction[]
+  }) => void
 
   // Refresh functions
   refreshData: () => Promise<void>
@@ -312,13 +320,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // Generic CRUD operations
-  const insertRow = async (table: string, data: any) => {
+  const insertRow = async (table: string, data: InsertData) => {
     const { data: result, error } = await supabase.from(`inventory_${table}`).insert(data).select().single()
     if (error) throw error
     return result
   }
 
-  const updateRow = async (table: string, id: number, data: any) => {
+  const updateRow = async (table: string, id: number, data: UpdateData) => {
     const { data: result, error } = await supabase
       .from(`inventory_${table}`)
       .update(data)
@@ -421,7 +429,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Computed functions
         computeOnHand,
         fetchLowStock,
-        setData: (newData: any) => {
+        setData: (newData: {
+          products?: Product[]
+          bill_of_materials?: BillOfMaterial[]
+          purchase_orders?: PurchaseOrder[]
+          purchase_order_lines?: PurchaseOrderLine[]
+          sales_orders?: CustomSalesOrder[]
+          sales_order_lines?: SalesOrderLine[]
+          inventory_transactions?: InventoryTransaction[]
+        }) => {
           setProducts(newData.products || [])
           setBillOfMaterials(newData.bill_of_materials || [])
           setPurchaseOrders(newData.purchase_orders || [])
