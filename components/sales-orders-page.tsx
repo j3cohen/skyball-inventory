@@ -163,19 +163,28 @@ export function SalesOrdersPage() {
       key: "gross_profit",
       label: "Gross Profit",
       sortable: true,
-      render: (_: unknown, row) => {
-        const total_price = (row as any)?.total_price ?? 0
-        const total_cogs = (row as any)?.total_cogs ?? 0
-        const shipping_cost = (row as any)?.shipping_cost ?? 0
-        const grossProfit = total_price - total_cogs - shipping_cost
-        return <span className={grossProfit >= 0 ? "text-green-600" : "text-red-600"}>${grossProfit.toFixed(2)}</span>
+      render: (_: unknown, row: unknown) => {
+        if (
+          typeof row === "object" &&
+          row !== null &&
+          "total_price" in row &&
+          "total_cogs" in row &&
+          "shipping_cost" in row
+        ) {
+          const total_price = (row as { total_price?: number }).total_price ?? 0
+          const total_cogs = (row as { total_cogs?: number }).total_cogs ?? 0
+          const shipping_cost = (row as { shipping_cost?: number }).shipping_cost ?? 0
+          const grossProfit = total_price - total_cogs - shipping_cost
+          return <span className={grossProfit >= 0 ? "text-green-600" : "text-red-600"}>${grossProfit.toFixed(2)}</span>
+        }
+        return <span>-</span>
       },
     },
     {
       key: "comments",
       label: "Comments",
       filterable: true,
-      render: (value, _row) => <>{value || "-"}</>,
+      render: (value) => <>{value || "-"}</>,
     },
   ]
 
