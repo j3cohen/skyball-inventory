@@ -89,26 +89,29 @@ export function PurchaseOrdersPage() {
       key: "freight_in",
       label: "Freight In",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(2)}`,
+      render: (value) => `$${(Number(value) || 0).toFixed(2)}`,
     },
     {
       key: "import_duty",
       label: "Import Duty",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(2)}`,
+      render: (value) => `$${(Number(value) || 0).toFixed(2)}`,
     },
     {
       key: "other_charges",
       label: "Other Charges",
       sortable: true,
-      render: (value) => `$${(value || 0).toFixed(2)}`,
+      render: (value) => `$${(Number(value) || 0).toFixed(2)}`,
     },
     {
       key: "total_charges",
       label: "Total Charges",
       sortable: true,
       render: (_, row) => {
-        const total = (row.freight_in || 0) + (row.import_duty || 0) + (row.other_charges || 0)
+        const total =
+          Number(row.freight_in ?? 0) +
+          Number(row.import_duty ?? 0) +
+          Number(row.other_charges ?? 0)
         return `$${total.toFixed(2)}`
       },
     },
@@ -116,7 +119,19 @@ export function PurchaseOrdersPage() {
       key: "actions",
       label: "Actions",
       render: (_, row) => (
-        <Button variant="outline" size="sm" onClick={() => handleReceive(row.id)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            if (typeof row.id === "number") {
+              handleReceive(row.id)
+            } else if (typeof row.id === "string" && !isNaN(Number(row.id))) {
+              handleReceive(Number(row.id))
+            } else {
+              alert("Invalid purchase order ID.")
+            }
+          }}
+        >
           Receive
         </Button>
       ),

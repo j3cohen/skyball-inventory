@@ -155,26 +155,26 @@ export function SalesAnalysisPage() {
       key: "total_revenue",
       label: "Revenue",
       sortable: true,
-      render: (value) => `$${value.toFixed(2)}`,
+      render: (value) => `$${(value as number).toFixed(2)}`,
     },
     {
       key: "total_cogs",
       label: "COGS",
       sortable: true,
-      render: (value) => <span className="text-red-600">${value.toFixed(2)}</span>,
+      render: (value) => <span className="text-red-600">${(value as number).toFixed(2)}</span>,
     },
     {
       key: "shipping_expense",
       label: "Shipping Cost",
       sortable: true,
-      render: (value) => <span className="text-red-600">${value.toFixed(2)}</span>,
+      render: (value) => <span className="text-red-600">${(value as number).toFixed(2)}</span>,
     },
     {
       key: "gross_profit",
       label: "Gross Profit",
       sortable: true,
       render: (value) => (
-        <span className={`font-medium ${value >= 0 ? "text-green-600" : "text-red-600"}`}>${value.toFixed(2)}</span>
+        <span className={`font-medium ${(value as number) >= 0 ? "text-green-600" : "text-red-600"}`}>${(value as number).toFixed(2)}</span>
       ),
     },
     {
@@ -182,7 +182,7 @@ export function SalesAnalysisPage() {
       label: "Margin %",
       sortable: true,
       render: (value) => (
-        <span className={`font-medium ${value >= 0 ? "text-green-600" : "text-red-600"}`}>{value.toFixed(1)}%</span>
+        <span className={`font-medium ${(value as number) >= 0 ? "text-green-600" : "text-red-600"}`}>{(value as number).toFixed(1)}%</span>
       ),
     },
     {
@@ -194,7 +194,7 @@ export function SalesAnalysisPage() {
       key: "comments",
       label: "Comments",
       filterable: true,
-      render: (value) => value || "-",
+      render: (value) => value ? String(value) : "-",
     },
   ]
 
